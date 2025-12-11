@@ -614,7 +614,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 👨‍💻 Author
 
-**Handika Tri Arlan**
+**Arlan Tri Handika**
 - GitHub: [@handikatriarlan](https://github.com/handikatriarlan)
 - Frontend: [day-your-read](https://github.com/handikatriarlan/day-your-read)
 - Backend: [day-your-read-api](https://github.com/handikatriarlan/day-your-read-api)
@@ -632,13 +632,3 @@ Built with amazing open-source technologies:
 - [Hono](https://hono.dev/) - Lightweight web framework
 - [Prisma](https://www.prisma.io/) - Next-generation ORM
 - [Zod](https://zod.dev/) - TypeScript-first validation
-
----
-
-<div align="center">
-
-**⭐ If this project helped you, consider giving it a star! ⭐**
-
-Made with ❤️ by [Handika Tri Arlan](https://github.com/handikatriarlan)
-
-</div>
