@@ -45,6 +45,9 @@ export const register = async (c: Context) => {
     return ApiResponse.created(c, user, "User registered successfully")
   } catch (err) {
     console.error("Register error:", err)
+    if (err instanceof ConflictError) {
+      throw err
+    }
     return ApiResponse.internalError(c, "Failed to register user")
   }
 }

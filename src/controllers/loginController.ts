@@ -45,6 +45,9 @@ export const login = async (c: Context) => {
     )
   } catch (error) {
     console.error("Login error:", error)
+    if (error instanceof UnauthorizedError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to login")
   }
 }

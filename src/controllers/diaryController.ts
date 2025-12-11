@@ -2,6 +2,7 @@ import type { Context } from "hono"
 import prisma from "../../prisma/helper"
 import type { CreateDiaryRequest, UpdateDiaryRequest } from "../types/diary"
 import { ApiResponse } from "../utils/response"
+import { NotFoundError, ValidationError } from "../utils/errors"
 
 export const createDiary = async (c: Context) => {
   try {
@@ -74,6 +75,9 @@ export const createDiary = async (c: Context) => {
     return ApiResponse.created(c, formattedDiary, "Diary created successfully")
   } catch (error) {
     console.error("Create diary error:", error)
+    if (error instanceof ValidationError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to create diary")
   }
 }
@@ -190,6 +194,9 @@ export const getDiaries = async (c: Context) => {
     )
   } catch (error) {
     console.error("Get diaries error:", error)
+    if (error instanceof ValidationError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to retrieve diaries")
   }
 }
@@ -255,6 +262,9 @@ export const getDiaryById = async (c: Context) => {
     return ApiResponse.success(c, formattedDiary, "Diary retrieved successfully")
   } catch (error) {
     console.error("Get diary error:", error)
+    if (error instanceof ValidationError || error instanceof NotFoundError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to retrieve diary")
   }
 }
@@ -369,6 +379,9 @@ export const updateDiary = async (c: Context) => {
     return ApiResponse.success(c, formattedDiary, "Diary updated successfully")
   } catch (error) {
     console.error("Update diary error:", error)
+    if (error instanceof ValidationError || error instanceof NotFoundError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to update diary")
   }
 }
@@ -402,6 +415,9 @@ export const deleteDiary = async (c: Context) => {
     return ApiResponse.success(c, null, "Diary deleted successfully")
   } catch (error) {
     console.error("Delete diary error:", error)
+    if (error instanceof ValidationError || error instanceof NotFoundError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to delete diary")
   }
 }
@@ -473,6 +489,9 @@ export const getDiaryStats = async (c: Context) => {
     return ApiResponse.success(c, stats, "Stats retrieved successfully")
   } catch (error) {
     console.error("Get stats error:", error)
+    if (error instanceof ValidationError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to retrieve stats")
   }
 }

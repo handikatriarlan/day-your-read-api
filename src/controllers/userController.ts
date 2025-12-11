@@ -40,6 +40,9 @@ export const getProfile = async (c: Context) => {
     return ApiResponse.success(c, formattedUser, "Profile retrieved successfully")
   } catch (error) {
     console.error("Get profile error:", error)
+    if (error instanceof NotFoundError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to retrieve profile")
   }
 }
@@ -73,6 +76,9 @@ export const updateProfile = async (c: Context) => {
     return ApiResponse.success(c, user, "Profile updated successfully")
   } catch (error) {
     console.error("Update profile error:", error)
+    if (error instanceof ValidationError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to update profile")
   }
 }
@@ -115,6 +121,9 @@ export const changePassword = async (c: Context) => {
     return ApiResponse.success(c, null, "Password changed successfully")
   } catch (error) {
     console.error("Change password error:", error)
+    if (error instanceof ValidationError || error instanceof NotFoundError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to change password")
   }
 }

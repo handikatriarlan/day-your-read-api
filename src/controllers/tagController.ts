@@ -13,10 +13,7 @@ export const createTag = async (c: Context) => {
     const existing = await prisma.tag.findFirst({
       where: {
         userId,
-        name: {
-          equals: name,
-          mode: "insensitive",
-        },
+        name,
       },
     })
 
@@ -53,6 +50,10 @@ export const createTag = async (c: Context) => {
     return ApiResponse.created(c, formattedTag, "Tag created successfully")
   } catch (error) {
     console.error("Create tag error:", error)
+    // Re-throw custom errors to be handled by global error handler
+    if (error instanceof ConflictError || error instanceof ValidationError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to create tag")
   }
 }
@@ -66,7 +67,6 @@ export const getTags = async (c: Context) => {
     if (search) {
       where.name = {
         contains: search,
-        mode: "insensitive",
       }
     }
 
@@ -99,6 +99,9 @@ export const getTags = async (c: Context) => {
     return ApiResponse.success(c, formattedTags, "Tags retrieved successfully")
   } catch (error) {
     console.error("Get tags error:", error)
+    if (error instanceof ValidationError || error instanceof NotFoundError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to retrieve tags")
   }
 }
@@ -162,6 +165,9 @@ export const getTagById = async (c: Context) => {
     return ApiResponse.success(c, formattedTag, "Tag retrieved successfully")
   } catch (error) {
     console.error("Get tag error:", error)
+    if (error instanceof ValidationError || error instanceof NotFoundError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to retrieve tag")
   }
 }
@@ -194,10 +200,7 @@ export const updateTag = async (c: Context) => {
       const duplicate = await prisma.tag.findFirst({
         where: {
           userId,
-          name: {
-            equals: name,
-            mode: "insensitive",
-          },
+          name,
           id: { not: id },
         },
       })
@@ -237,6 +240,9 @@ export const updateTag = async (c: Context) => {
     return ApiResponse.success(c, formattedTag, "Tag updated successfully")
   } catch (error) {
     console.error("Update tag error:", error)
+    if (error instanceof ValidationError || error instanceof NotFoundError || error instanceof ConflictError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to update tag")
   }
 }
@@ -270,6 +276,9 @@ export const deleteTag = async (c: Context) => {
     return ApiResponse.success(c, null, "Tag deleted successfully")
   } catch (error) {
     console.error("Delete tag error:", error)
+    if (error instanceof ValidationError || error instanceof NotFoundError) {
+      throw error
+    }
     return ApiResponse.internalError(c, "Failed to delete tag")
   }
 }
