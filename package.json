@@ -5,12 +5,12 @@
     "dev": "bun run --hot src/index.ts"
   },
   "dependencies": {
-    "@prisma/client": "^7.1.0",
+    "@prisma/client": "6.18.0",
     "hono": "^4.10.8",
     "zod": "^4.1.13"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "prisma": "^7.1.0"
+    "prisma": "6.18.0"
   }
 }
