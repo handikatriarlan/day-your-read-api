@@ -1,7 +1,7 @@
 import type { Context } from "hono"
 import prisma from "../../prisma/helper"
-
 import type { RegisterRequest } from "../types/auth"
+import { ApiResponse } from "../utils/response"
 
 export const register = async (c: Context) => {
   try {
@@ -21,16 +21,12 @@ export const register = async (c: Context) => {
           : existing.username === username
           ? "username"
           : "email"
-      return c.json(
-        {
-          success: false,
-          message:
-            conflictField === "email"
-              ? "Email sudah terdaftar"
-              : "Username sudah digunakan",
-          errors: { [conflictField]: "Telah digunakan" },
-        },
-        409
+      return ApiResponse.conflict(
+        c,
+        conflictField === "email"
+          ? "Email already registered"
+          : "Username already taken",
+        { [conflictField]: "Already in use" }
       )
     }
 
@@ -48,15 +44,9 @@ export const register = async (c: Context) => {
       },
     })
 
-    return c.json(
-      {
-        success: true,
-        message: "User Berhasil Dibuat",
-        data: user,
-      },
-      201
-    )
+    return ApiResponse.created(c, user, "User registered successfully")
   } catch (err) {
-    return c.json({ success: false, message: "Internal server error" }, 500)
+    console.error("Register error:", err)
+    return ApiResponse.internalError(c, "Failed to register user")
   }
 }

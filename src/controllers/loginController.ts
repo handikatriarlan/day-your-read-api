@@ -2,6 +2,7 @@ import type { Context } from "hono"
 import prisma from "../../prisma/helper"
 import type { LoginRequest } from "../types/auth"
 import { sign } from "hono/jwt"
+import { ApiResponse } from "../utils/response"
 
 export const login = async (c: Context) => {
   try {
@@ -12,13 +13,7 @@ export const login = async (c: Context) => {
     })
 
     if (!user) {
-      return c.json(
-        {
-          success: false,
-          message: "User tidak ditemukan",
-        },
-        401
-      )
+      return ApiResponse.unauthorized(c, "User not found")
     }
 
     const isPasswordValid = user.password
@@ -26,13 +21,7 @@ export const login = async (c: Context) => {
       : false
 
     if (!isPasswordValid) {
-      return c.json(
-        {
-          success: false,
-          message: "Password salah",
-        },
-        401
-      )
+      return ApiResponse.unauthorized(c, "Invalid password")
     }
 
     const payload = {
@@ -45,18 +34,16 @@ export const login = async (c: Context) => {
     const token = await sign(payload, secret)
     const { password: _, ...userData } = user
 
-    return c.json(
+    return ApiResponse.success(
+      c,
       {
-        success: true,
-        message: "Login Berhasil!",
-        data: {
-          user: userData,
-          token: token,
-        },
+        user: userData,
+        token: token,
       },
-      200
+      "Login successful"
     )
   } catch (error) {
-    return c.json({ success: false, message: "Internal server error" }, 500)
+    console.error("Login error:", error)
+    return ApiResponse.internalError(c, "Failed to login")
   }
 }

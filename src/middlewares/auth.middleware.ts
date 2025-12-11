@@ -1,5 +1,6 @@
 import type { MiddlewareHandler } from "hono"
 import { verify } from "hono/jwt"
+import { ApiResponse } from "../utils/response"
 
 export const verifyToken: MiddlewareHandler = async (c, next) => {
   const header =
@@ -9,7 +10,7 @@ export const verifyToken: MiddlewareHandler = async (c, next) => {
     : header.trim()
 
   if (!token) {
-    return c.json({ message: "Unauthenticated." }, 401)
+    return ApiResponse.unauthorized(c, "Authentication token required")
   }
 
   try {
@@ -17,10 +18,16 @@ export const verifyToken: MiddlewareHandler = async (c, next) => {
     const payload = await verify(token, secret)
 
     const userId = (payload as any).id ?? (payload as any).sub
+    
+    if (!userId) {
+      return ApiResponse.unauthorized(c, "Invalid token payload")
+    }
+    
     c.set("userId", userId)
 
     await next()
-  } catch {
-    return c.json({ message: "Invalid token" }, 401)
+  } catch (error) {
+    console.error("Token verification error:", error)
+    return ApiResponse.unauthorized(c, "Invalid or expired token")
   }
 }

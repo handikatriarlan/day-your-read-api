@@ -22,6 +22,80 @@ model User {
   password  String?  @db.VarChar(255)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  diaries   Diary[]
+  tags      Tag[]
 
   @@map("users")
+}
+
+model Diary {
+  id          Int            @id @default(autoincrement())
+  title       String         @db.VarChar(255)
+  content     String         @db.Text
+  mood        Mood?
+  isPublic    Boolean        @default(false)
+  userId      Int
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  diaryTags   DiaryTag[]
+  attachments Attachment[]
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("diaries")
+}
+
+model Tag {
+  id        Int        @id @default(autoincrement())
+  name      String     @db.VarChar(50)
+  color     String?    @db.VarChar(7) // Hex color code
+  userId    Int
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  diaryTags DiaryTag[]
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("tags")
+}
+
+model DiaryTag {
+  diaryId   Int
+  tagId     Int
+  diary     Diary    @relation(fields: [diaryId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([diaryId, tagId])
+  @@index([diaryId])
+  @@index([tagId])
+  @@map("diary_tags")
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  filename  String   @db.VarChar(255)
+  url       String   @db.VarChar(500)
+  fileType  String   @db.VarChar(50)
+  fileSize  Int
+  diaryId   Int
+  diary     Diary    @relation(fields: [diaryId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([diaryId])
+  @@map("attachments")
+}
+
+enum Mood {
+  HAPPY
+  SAD
+  EXCITED
+  ANXIOUS
+  CALM
+  ANGRY
+  GRATEFUL
+  TIRED
+  MOTIVATED
+  CONFUSED
 }
