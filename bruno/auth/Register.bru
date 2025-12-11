@@ -1,0 +1,26 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/register
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "name": "Arlan Tri Handika",
+      "username": "handikatriarlan",
+      "email": "handikaarlan@gmail.com",
+      "password": "123123"
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Day Your Read",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
