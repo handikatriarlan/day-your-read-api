@@ -4,6 +4,14 @@ import { logger } from "hono/logger"
 import { prettyJSON } from "hono/pretty-json"
 import { Routes } from "./routes"
 import { ApiResponse } from "./utils/response"
+import { 
+  AppError, 
+  ValidationError, 
+  NotFoundError, 
+  UnauthorizedError, 
+  ForbiddenError, 
+  ConflictError 
+} from "./utils/errors"
 
 const app = new Hono()
 
@@ -42,6 +50,36 @@ app.notFound((c) => {
 app.onError((err, c) => {
   console.error("Global error:", err)
   
+  // Handle custom application errors
+  if (err instanceof ValidationError) {
+    return ApiResponse.unprocessable(c, err.message, err.errors)
+  }
+  
+  if (err instanceof NotFoundError) {
+    return ApiResponse.notFound(c, err.message)
+  }
+  
+  if (err instanceof UnauthorizedError) {
+    return ApiResponse.unauthorized(c, err.message)
+  }
+  
+  if (err instanceof ForbiddenError) {
+    return ApiResponse.forbidden(c, err.message)
+  }
+  
+  if (err instanceof ConflictError) {
+    return ApiResponse.conflict(c, err.message, err.errors)
+  }
+  
+  if (err instanceof AppError) {
+    return c.json({
+      success: false,
+      message: err.message,
+      errors: err.errors,
+    }, err.statusCode as any)
+  }
+  
+  // Handle database constraint errors
   if (err.message.includes("Unique constraint")) {
     return ApiResponse.conflict(c, "Resource already exists")
   }
@@ -50,6 +88,7 @@ app.onError((err, c) => {
     return ApiResponse.badRequest(c, "Invalid reference to related resource")
   }
   
+  // Default error response
   return ApiResponse.internalError(c, "An unexpected error occurred")
 })
 

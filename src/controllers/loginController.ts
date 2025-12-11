@@ -3,6 +3,7 @@ import prisma from "../../prisma/helper"
 import type { LoginRequest } from "../types/auth"
 import { sign } from "hono/jwt"
 import { ApiResponse } from "../utils/response"
+import { UnauthorizedError } from "../utils/errors"
 
 export const login = async (c: Context) => {
   try {
@@ -13,7 +14,7 @@ export const login = async (c: Context) => {
     })
 
     if (!user) {
-      return ApiResponse.unauthorized(c, "User not found")
+      throw new UnauthorizedError("Invalid username or password")
     }
 
     const isPasswordValid = user.password
@@ -21,7 +22,7 @@ export const login = async (c: Context) => {
       : false
 
     if (!isPasswordValid) {
-      return ApiResponse.unauthorized(c, "Invalid password")
+      throw new UnauthorizedError("Invalid username or password")
     }
 
     const payload = {

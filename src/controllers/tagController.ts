@@ -2,6 +2,7 @@ import type { Context } from "hono"
 import prisma from "../../prisma/helper"
 import type { CreateTagRequest, UpdateTagRequest } from "../types/diary"
 import { ApiResponse } from "../utils/response"
+import { NotFoundError, ValidationError, ConflictError } from "../utils/errors"
 
 export const createTag = async (c: Context) => {
   try {
@@ -20,7 +21,7 @@ export const createTag = async (c: Context) => {
     })
 
     if (existing) {
-      return ApiResponse.conflict(c, "Tag with this name already exists")
+      throw new ConflictError("Tag with this name already exists")
     }
 
     const tag = await prisma.tag.create({
@@ -87,13 +88,13 @@ export const getTags = async (c: Context) => {
       },
     })
 
-    const formattedTags = tags.map((tag) => ({
+    const formattedTags = tags.map((tag: { _count: { diaryTags: any } }) => ({
       ...tag,
       usageCount: tag._count.diaryTags,
       _count: undefined,
     }))
 
-    formattedTags.forEach((tag) => delete tag._count)
+    formattedTags.forEach((tag: { _count: any }) => delete tag._count)
 
     return ApiResponse.success(c, formattedTags, "Tags retrieved successfully")
   } catch (error) {
@@ -108,7 +109,7 @@ export const getTagById = async (c: Context) => {
     const id = parseInt(c.req.param("id"))
 
     if (isNaN(id)) {
-      return ApiResponse.badRequest(c, "Invalid tag ID")
+      throw new ValidationError("Invalid tag ID")
     }
 
     const tag = await prisma.tag.findFirst({
@@ -145,13 +146,13 @@ export const getTagById = async (c: Context) => {
     })
 
     if (!tag) {
-      return ApiResponse.notFound(c, "Tag not found")
+      throw new NotFoundError("Tag not found")
     }
 
     const formattedTag = {
       ...tag,
       usageCount: tag._count.diaryTags,
-      recentDiaries: tag.diaryTags.map((dt) => dt.diary),
+      recentDiaries: tag.diaryTags.map((dt: { diary: any }) => dt.diary),
       _count: undefined,
       diaryTags: undefined,
     }
@@ -171,7 +172,7 @@ export const updateTag = async (c: Context) => {
     const id = parseInt(c.req.param("id"))
 
     if (isNaN(id)) {
-      return ApiResponse.badRequest(c, "Invalid tag ID")
+      throw new ValidationError("Invalid tag ID")
     }
 
     const { name, color } = c.get("validatedBody") as UpdateTagRequest
@@ -185,7 +186,7 @@ export const updateTag = async (c: Context) => {
     })
 
     if (!existingTag) {
-      return ApiResponse.notFound(c, "Tag not found")
+      throw new NotFoundError("Tag not found")
     }
 
     // Check if new name conflicts with another tag
@@ -202,7 +203,7 @@ export const updateTag = async (c: Context) => {
       })
 
       if (duplicate) {
-        return ApiResponse.conflict(c, "Tag with this name already exists")
+        throw new ConflictError("Tag with this name already exists")
       }
     }
 
@@ -246,7 +247,7 @@ export const deleteTag = async (c: Context) => {
     const id = parseInt(c.req.param("id"))
 
     if (isNaN(id)) {
-      return ApiResponse.badRequest(c, "Invalid tag ID")
+      throw new ValidationError("Invalid tag ID")
     }
 
     // Check if tag exists and belongs to user
@@ -258,7 +259,7 @@ export const deleteTag = async (c: Context) => {
     })
 
     if (!existingTag) {
-      return ApiResponse.notFound(c, "Tag not found")
+      throw new NotFoundError("Tag not found")
     }
 
     // Delete tag (cascade will handle diary_tags)

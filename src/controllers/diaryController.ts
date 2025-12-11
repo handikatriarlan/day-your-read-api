@@ -2,7 +2,6 @@ import type { Context } from "hono"
 import prisma from "../../prisma/helper"
 import type { CreateDiaryRequest, UpdateDiaryRequest } from "../types/diary"
 import { ApiResponse } from "../utils/response"
-import { NotFoundError, ForbiddenError } from "../utils/errors"
 
 export const createDiary = async (c: Context) => {
   try {
@@ -67,7 +66,7 @@ export const createDiary = async (c: Context) => {
     // Format response
     const formattedDiary = {
       ...diary,
-      tags: diary.diaryTags.map((dt) => dt.tag),
+      tags: diary.diaryTags.map((dt: { tag: any }) => dt.tag),
       diaryTags: undefined,
     }
     delete formattedDiary.diaryTags
@@ -169,9 +168,9 @@ export const getDiaries = async (c: Context) => {
     })
 
     // Format response
-    const formattedDiaries = diaries.map((diary) => ({
+    const formattedDiaries = diaries.map((diary: { diaryTags: any[]; _count: { attachments: any } }) => ({
       ...diary,
-      tags: diary.diaryTags.map((dt) => dt.tag),
+      tags: diary.diaryTags.map((dt: { tag: any }) => dt.tag),
       attachmentsCount: diary._count.attachments,
       diaryTags: undefined,
       _count: undefined,
@@ -248,7 +247,7 @@ export const getDiaryById = async (c: Context) => {
     // Format response
     const formattedDiary = {
       ...diary,
-      tags: diary.diaryTags.map((dt) => dt.tag),
+      tags: diary.diaryTags.map((dt: { tag: any }) => dt.tag),
       diaryTags: undefined,
     }
     delete formattedDiary.diaryTags
@@ -362,7 +361,7 @@ export const updateDiary = async (c: Context) => {
     // Format response
     const formattedDiary = {
       ...diary,
-      tags: diary?.diaryTags.map((dt) => dt.tag),
+      tags: diary?.diaryTags.map((dt: { tag: any }) => dt.tag),
       diaryTags: undefined,
     }
     delete formattedDiary.diaryTags
@@ -449,14 +448,14 @@ export const getDiaryStats = async (c: Context) => {
     ])
 
     // Get tag details
-    const tagIds = tagsUsage.map((t) => t.tagId)
+    const tagIds = tagsUsage.map((t: { tagId: any }) => t.tagId)
     const tags = await prisma.tag.findMany({
       where: { id: { in: tagIds } },
       select: { id: true, name: true, color: true },
     })
 
-    const tagMap = new Map(tags.map((t) => [t.id, t]))
-    const topTags = tagsUsage.map((t) => ({
+    const tagMap = new Map(tags.map((t: { id: any }) => [t.id, t]))
+    const topTags = tagsUsage.map((t: { tagId: unknown; _count: any }) => ({
       tag: tagMap.get(t.tagId),
       count: t._count,
     }))
@@ -464,7 +463,7 @@ export const getDiaryStats = async (c: Context) => {
     const stats = {
       totalDiaries,
       recentDiaries,
-      moodDistribution: moodStats.map((m) => ({
+      moodDistribution: moodStats.map((m: { mood: any; _count: any }) => ({
         mood: m.mood,
         count: m._count,
       })),

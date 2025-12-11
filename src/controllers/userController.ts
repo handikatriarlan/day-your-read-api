@@ -1,6 +1,7 @@
 import type { Context } from "hono"
 import prisma from "../../prisma/helper"
 import { ApiResponse } from "../utils/response"
+import { NotFoundError, ValidationError } from "../utils/errors"
 
 export const getProfile = async (c: Context) => {
   try {
@@ -25,7 +26,7 @@ export const getProfile = async (c: Context) => {
     })
 
     if (!user) {
-      return ApiResponse.notFound(c, "User not found")
+      throw new NotFoundError("User not found")
     }
 
     const formattedUser = {
@@ -49,11 +50,11 @@ export const updateProfile = async (c: Context) => {
     const { name } = await c.req.json()
 
     if (!name || typeof name !== "string" || name.trim().length === 0) {
-      return ApiResponse.badRequest(c, "Name is required")
+      throw new ValidationError("Name is required")
     }
 
     if (name.trim().length > 100) {
-      return ApiResponse.badRequest(c, "Name must be at most 100 characters")
+      throw new ValidationError("Name must be at most 100 characters")
     }
 
     const user = await prisma.user.update({
@@ -82,11 +83,11 @@ export const changePassword = async (c: Context) => {
     const { currentPassword, newPassword } = await c.req.json()
 
     if (!currentPassword || !newPassword) {
-      return ApiResponse.badRequest(c, "Current password and new password are required")
+      throw new ValidationError("Current password and new password are required")
     }
 
     if (newPassword.length < 6) {
-      return ApiResponse.badRequest(c, "New password must be at least 6 characters")
+      throw new ValidationError("New password must be at least 6 characters")
     }
 
     const user = await prisma.user.findUnique({
@@ -95,13 +96,13 @@ export const changePassword = async (c: Context) => {
     })
 
     if (!user || !user.password) {
-      return ApiResponse.notFound(c, "User not found")
+      throw new NotFoundError("User not found")
     }
 
     const isPasswordValid = await Bun.password.verify(currentPassword, user.password)
 
     if (!isPasswordValid) {
-      return ApiResponse.badRequest(c, "Current password is incorrect")
+      throw new ValidationError("Current password is incorrect")
     }
 
     const hashedPassword = await Bun.password.hash(newPassword)

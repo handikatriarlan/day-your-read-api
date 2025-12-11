@@ -2,6 +2,7 @@ import type { Context } from "hono"
 import prisma from "../../prisma/helper"
 import type { RegisterRequest } from "../types/auth"
 import { ApiResponse } from "../utils/response"
+import { ConflictError } from "../utils/errors"
 
 export const register = async (c: Context) => {
   try {
@@ -21,13 +22,10 @@ export const register = async (c: Context) => {
           : existing.username === username
           ? "username"
           : "email"
-      return ApiResponse.conflict(
-        c,
-        conflictField === "email"
-          ? "Email already registered"
-          : "Username already taken",
-        { [conflictField]: "Already in use" }
-      )
+      const message = conflictField === "email"
+        ? "Email already registered"
+        : "Username already taken"
+      throw new ConflictError(message, { [conflictField]: "Already in use" })
     }
 
     const hashedPassword = await Bun.password.hash(password)
