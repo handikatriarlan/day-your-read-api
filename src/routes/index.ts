@@ -1,11 +1,12 @@
-import { Hono } from 'hono';
-
-import { validateBody } from '../middlewares/validate.middleware';
-import { registerSchema } from '../schemas/auth.schema';
-import { register } from '../controllers/registerController';
+import { Hono } from "hono"
+import { validateBody } from "../middlewares/validate.middleware"
+import { registerSchema, loginSchema } from "../schemas/auth.schema"
+import { register } from "../controllers/registerController"
+import { login } from "../controllers/loginController"
 
 const router = new Hono()
 
-router.post('/register', validateBody(registerSchema), register);
+router.post("/register", validateBody(registerSchema), register)
+router.post("/login", validateBody(loginSchema), login)
 
-export const Routes = router;
+export const Routes = router
