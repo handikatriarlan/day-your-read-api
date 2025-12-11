@@ -1,0 +1,32 @@
+meta {
+  name: Update Profile
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/user/profile
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Arlan Tri Handika Updated"
+  }
+}
+
+docs {
+  Update user profile.
+  
+  Currently only supports updating the name field.
+  Name must be 1-100 characters.
+}

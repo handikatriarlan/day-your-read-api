@@ -1,0 +1,27 @@
+meta {
+  name: Search Diaries Example
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/diaries?search=amazing&page=1&limit=10
+  body: none
+  auth: bearer
+}
+
+params:query {
+  search: amazing
+  page: 1
+  limit: 10
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Example: Search for diaries containing "amazing" in title or content.
+  
+  The search is case-insensitive and searches both title and content fields.
+}

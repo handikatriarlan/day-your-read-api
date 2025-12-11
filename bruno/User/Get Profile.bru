@@ -1,0 +1,25 @@
+meta {
+  name: Get Profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/user/profile
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Get current user profile with statistics.
+  
+  Returns:
+  - User information (id, name, username, email)
+  - Total diaries count
+  - Total tags count
+  - Account creation date
+}

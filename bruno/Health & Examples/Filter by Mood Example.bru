@@ -1,0 +1,29 @@
+meta {
+  name: Filter by Mood Example
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/diaries?mood=HAPPY&page=1&limit=5
+  body: none
+  auth: bearer
+}
+
+params:query {
+  mood: HAPPY
+  page: 1
+  limit: 5
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Example: Get all HAPPY diaries.
+  
+  Try changing mood to:
+  HAPPY, SAD, EXCITED, ANXIOUS, CALM,
+  ANGRY, GRATEFUL, TIRED, MOTIVATED, CONFUSED
+}

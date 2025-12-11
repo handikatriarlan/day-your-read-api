@@ -5,9 +5,15 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/login
+  url: {{baseUrl}}/auth/login
   body: json
   auth: inherit
+}
+
+script:post-response {
+  if (res.body.success && res.body.data.token) {
+    bru.setEnvVar("token", res.body.data.token);
+  }
 }
 
 body:json {

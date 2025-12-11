@@ -1,0 +1,16 @@
+meta {
+  name: Root Health Check
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/
+  body: none
+  auth: none
+}
+
+docs {
+  Check if the API server is running.
+  This endpoint doesn't require authentication.
+}

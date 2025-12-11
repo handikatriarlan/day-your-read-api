@@ -1,0 +1,34 @@
+meta {
+  name: Complex Filter Example
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/diaries?mood=HAPPY&search=great&sortBy=createdAt&sortOrder=desc&page=1&limit=5
+  body: none
+  auth: bearer
+}
+
+params:query {
+  mood: HAPPY
+  search: great
+  sortBy: createdAt
+  sortOrder: desc
+  page: 1
+  limit: 5
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Example: Complex filtering combining multiple parameters.
+  
+  This searches for:
+  - Diaries with HAPPY mood
+  - Containing "great" in title/content
+  - Sorted by creation date (newest first)
+  - Limited to 5 results per page
+}

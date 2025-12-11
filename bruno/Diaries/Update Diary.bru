@@ -1,0 +1,39 @@
+meta {
+  name: Update Diary
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/diaries/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Updated Title",
+    "content": "Updated content goes here...",
+    "mood": "GRATEFUL",
+    "isPublic": true,
+    "tagIds": [1]
+  }
+}
+
+docs {
+  Update an existing diary entry.
+  All fields are optional - only send what you want to update.
+  
+  Replace '1' in the URL with your diary ID.
+  
+  To remove mood, set it to null:
+  "mood": null
+}

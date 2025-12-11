@@ -1,0 +1,28 @@
+meta {
+  name: Get All Tags
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/tags
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~search: work
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Get all your tags with usage count.
+  
+  Optional query parameter:
+  - search: Filter tags by name
+  
+  Uncomment (~) search param to test filtering.
+}

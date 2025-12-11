@@ -1,0 +1,16 @@
+meta {
+  name: API Health Check
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/health
+  body: none
+  auth: none
+}
+
+docs {
+  Check API health status with timestamp.
+  This endpoint doesn't require authentication.
+}

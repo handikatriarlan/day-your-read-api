@@ -1,0 +1,33 @@
+meta {
+  name: Update Tag
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/tags/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Work Projects",
+    "color": "#DC2626"
+  }
+}
+
+docs {
+  Update an existing tag.
+  Both fields are optional - only send what you want to update.
+  
+  Replace '1' in the URL with your tag ID.
+}

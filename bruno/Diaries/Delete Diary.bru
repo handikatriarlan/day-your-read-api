@@ -1,0 +1,22 @@
+meta {
+  name: Delete Diary
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/diaries/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Delete a diary entry permanently.
+  This action cannot be undone.
+  
+  Replace '1' in the URL with your diary ID.
+}

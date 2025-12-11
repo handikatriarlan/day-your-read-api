@@ -1,0 +1,46 @@
+meta {
+  name: Get All Diaries
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/diaries?page=1&limit=10&sortBy=createdAt&sortOrder=desc
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 10
+  sortBy: createdAt
+  sortOrder: desc
+  ~mood: HAPPY
+  ~tagIds: 1,2
+  ~startDate: 2025-12-01
+  ~endDate: 2025-12-31
+  ~search: amazing
+  ~isPublic: false
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Get all diaries with pagination and filtering options.
+  
+  Query Parameters:
+  - page: Page number (default: 1)
+  - limit: Items per page (default: 10, max: 100)
+  - mood: Filter by mood
+  - tagIds: Comma-separated tag IDs
+  - startDate: Filter from date (ISO format)
+  - endDate: Filter to date (ISO format)
+  - search: Search in title and content
+  - isPublic: Filter by public/private
+  - sortBy: createdAt, updatedAt, title
+  - sortOrder: asc, desc
+  
+  Uncomment (~) query params to test filtering
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Get Diary by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/diaries/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Get a specific diary entry by ID.
+  Returns full details including tags and attachments.
+  
+  Replace '1' in the URL with your diary ID.
+}

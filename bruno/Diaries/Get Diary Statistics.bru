@@ -1,0 +1,23 @@
+meta {
+  name: Get Diary Statistics
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/diaries/stats
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Get statistics about your diaries:
+  - Total diaries count
+  - Recent diaries (last 7 days)
+  - Mood distribution
+  - Top 5 most used tags
+}

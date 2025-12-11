@@ -1,0 +1,37 @@
+meta {
+  name: Create Diary
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/diaries
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "My Amazing Day",
+    "content": "Today was a great day. I learned a lot and had fun with my friends. We went to the park and had a picnic. The weather was perfect!",
+    "mood": "HAPPY",
+    "isPublic": false,
+    "tagIds": []
+  }
+}
+
+docs {
+  Create a new diary entry with mood tracking and optional tags.
+  
+  Available moods:
+  - HAPPY, SAD, EXCITED, ANXIOUS, CALM
+  - ANGRY, GRATEFUL, TIRED, MOTIVATED, CONFUSED
+}

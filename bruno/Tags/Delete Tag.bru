@@ -1,0 +1,22 @@
+meta {
+  name: Delete Tag
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/tags/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Delete a tag permanently.
+  This will remove the tag from all diaries that use it.
+  
+  Replace '1' in the URL with your tag ID.
+}
