@@ -1,67 +1,57 @@
-# Day Your Read API
+# Day Your Read - API Documentation
 
-A comprehensive RESTful API for a diary/journal application built with Hono, Prisma, and Bun.
+> **Complete REST API Reference v1.0**
 
-## Features
+Backend API for [Day Your Read](https://github.com/handikatriarlan/day-your-read) - A modern digital diary application.
 
-- 🔐 **Authentication & Authorization**: JWT-based authentication
-- 📝 **Diary Management**: Create, read, update, delete diary entries
-- 🏷️ **Tags System**: Organize diaries with custom tags
-- 😊 **Mood Tracking**: Track your mood with each diary entry
-- 📊 **Statistics**: Get insights about your diary writing habits
-- 🔍 **Advanced Filtering**: Filter diaries by date, mood, tags, and search
-- 📄 **Pagination**: Efficient pagination for large datasets
-- ✅ **Validation**: Comprehensive input validation with Zod
-- 🛡️ **Error Handling**: Consistent error responses across the API
+---
 
-## Tech Stack
+## 📋 Quick Reference
 
-- **Runtime**: Bun
-- **Framework**: Hono
-- **Database**: MySQL with Prisma ORM
-- **Validation**: Zod
-- **Authentication**: JWT
+**Base URL**: `http://localhost:3000`  
+**Authentication**: JWT Bearer Token  
+**Content-Type**: `application/json`  
+**API Version**: 1.0
 
-## Getting Started
+### Endpoint Summary
 
-### Prerequisites
+| Category | Endpoints | Auth Required |
+|----------|-----------|---------------|
+| **Health** | 2 endpoints | ❌ |
+| **Authentication** | 2 endpoints | ❌ |
+| **User Profile** | 3 endpoints | ✅ |
+| **Diaries** | 6 endpoints | ✅ |
+| **Tags** | 5 endpoints | ✅ |
 
-- Bun installed
-- MySQL database
+---
 
-### Installation
+## 🔐 Authentication
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   bun install
+### How It Works
+
+1. **Register** or **Login** to receive a JWT token
+2. Include token in `Authorization` header for protected endpoints:
+   ```http
+   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
    ```
+3. Token expires after **1 hour** - login again to refresh
 
-3. Copy `.env.example` to `.env` and configure your environment variables:
-   ```bash
-   cp .env.example .env
-   ```
+### Protected Endpoints
 
-4. Run database migrations:
-   ```bash
-   bunx prisma migrate dev
-   ```
+All endpoints except Health Check and Authentication require a valid JWT token.
 
-5. Start the development server:
-   ```bash
-   bun run dev
-   ```
+---
 
-The API will be available at `http://localhost:3000`
-
-## API Endpoints
+## 📡 API Endpoints
 
 ### Health Check
 
-#### GET /
-Get API information
+#### `GET /`
 
-**Response:**
+**Description**: API welcome message  
+**Auth**: Not required
+
+**Response**:
 ```json
 {
   "success": true,
@@ -71,10 +61,14 @@ Get API information
 }
 ```
 
-#### GET /api/health
-Check API health status
+---
 
-**Response:**
+#### `GET /api/health`
+
+**Description**: Health status check  
+**Auth**: Not required
+
+**Response**:
 ```json
 {
   "success": true,
@@ -83,22 +77,26 @@ Check API health status
 }
 ```
 
+---
+
 ### Authentication
 
-#### POST /api/auth/register
-Register a new user
+#### `POST /api/auth/register`
 
-**Request Body:**
+**Description**: Create new user account  
+**Auth**: Not required
+
+**Request Body**:
 ```json
 {
-  "name": "John Doe",
-  "username": "johndoe",
-  "email": "john@example.com",
-  "password": "password123"
+  "name": "John Doe",           // optional, 1-100 chars
+  "username": "johndoe",        // required, 3-32 chars, unique
+  "email": "john@example.com",  // required, valid email, unique
+  "password": "password123"     // required, 6-128 chars
 }
 ```
 
-**Response (201):**
+**Success Response** `201`:
 ```json
 {
   "success": true,
@@ -114,18 +112,26 @@ Register a new user
 }
 ```
 
-#### POST /api/auth/login
-Login with existing credentials
+**Error Responses**:
+- `409 Conflict`: Username or email already exists
+- `422 Unprocessable Entity`: Validation failed
 
-**Request Body:**
+---
+
+#### `POST /api/auth/login`
+
+**Description**: Login and receive JWT token  
+**Auth**: Not required
+
+**Request Body**:
 ```json
 {
-  "username": "johndoe",
-  "password": "password123"
+  "username": "johndoe",      // required
+  "password": "password123"   // required
 }
 ```
 
-**Response (200):**
+**Success Response** `200`:
 ```json
 {
   "success": true,
@@ -144,19 +150,26 @@ Login with existing credentials
 }
 ```
 
+**Error Response**:
+- `401 Unauthorized`: Invalid credentials
+
+---
+
 ### User Profile
 
-All user endpoints require authentication via Bearer token.
+All user endpoints require authentication.
 
-#### GET /api/user/profile
-Get current user profile
+#### `GET /api/user/profile`
 
-**Headers:**
+**Description**: Get current user profile with statistics  
+**Auth**: Required
+
+**Headers**:
+```http
+Authorization: Bearer YOUR_TOKEN
 ```
-Authorization: Bearer <token>
-```
 
-**Response (200):**
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -174,22 +187,21 @@ Authorization: Bearer <token>
 }
 ```
 
-#### PUT /api/user/profile
-Update user profile
+---
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+#### `PUT /api/user/profile`
 
-**Request Body:**
+**Description**: Update user profile name  
+**Auth**: Required
+
+**Request Body**:
 ```json
 {
-  "name": "John Updated"
+  "name": "John Updated"  // required, 1-100 chars
 }
 ```
 
-**Response (200):**
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -205,23 +217,22 @@ Authorization: Bearer <token>
 }
 ```
 
-#### POST /api/user/change-password
-Change user password
+---
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+#### `POST /api/user/change-password`
 
-**Request Body:**
+**Description**: Change account password  
+**Auth**: Required
+
+**Request Body**:
 ```json
 {
-  "currentPassword": "password123",
-  "newPassword": "newpassword456"
+  "currentPassword": "password123",  // required
+  "newPassword": "newpassword456"    // required, min 6 chars
 }
 ```
 
-**Response (200):**
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -229,30 +240,32 @@ Authorization: Bearer <token>
 }
 ```
 
+**Error Response**:
+- `422 Unprocessable Entity`: Current password incorrect
+
+---
+
 ### Diaries
 
-All diary endpoints require authentication via Bearer token.
+All diary endpoints require authentication.
 
-#### POST /api/diaries
-Create a new diary entry
+#### `POST /api/diaries`
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+**Description**: Create new diary entry  
+**Auth**: Required
 
-**Request Body:**
+**Request Body**:
 ```json
 {
-  "title": "My Amazing Day",
-  "content": "Today was a great day. I learned a lot and had fun!",
-  "mood": "HAPPY",
-  "isPublic": false,
-  "tagIds": [1, 2]
+  "title": "My Amazing Day",            // required, 1-255 chars
+  "content": "Today was great...",      // required, 1-50000 chars
+  "mood": "HAPPY",                      // optional, see Mood Types
+  "isPublic": false,                    // optional, default: false
+  "tagIds": [1, 2]                      // optional, array of tag IDs
 }
 ```
 
-**Response (201):**
+**Response** `201`:
 ```json
 {
   "success": true,
@@ -260,7 +273,7 @@ Authorization: Bearer <token>
   "data": {
     "id": 1,
     "title": "My Amazing Day",
-    "content": "Today was a great day. I learned a lot and had fun!",
+    "content": "Today was great...",
     "mood": "HAPPY",
     "isPublic": false,
     "userId": 1,
@@ -271,11 +284,6 @@ Authorization: Bearer <token>
         "id": 1,
         "name": "Personal",
         "color": "#3B82F6"
-      },
-      {
-        "id": 2,
-        "name": "Learning",
-        "color": "#10B981"
       }
     ],
     "user": {
@@ -287,32 +295,34 @@ Authorization: Bearer <token>
 }
 ```
 
-#### GET /api/diaries
-Get all diaries with filtering and pagination
+---
 
-**Headers:**
+#### `GET /api/diaries`
+
+**Description**: Get all diaries with filtering and pagination  
+**Auth**: Required
+
+**Query Parameters**:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | number | 1 | Page number |
+| `limit` | number | 10 | Items per page (max 100) |
+| `mood` | string | - | Filter by mood |
+| `tagIds` | string | - | Comma-separated tag IDs (e.g., "1,2,3") |
+| `startDate` | ISO date | - | Filter from date |
+| `endDate` | ISO date | - | Filter until date |
+| `search` | string | - | Search in title and content |
+| `isPublic` | boolean | - | Filter by public/private |
+| `sortBy` | string | createdAt | Sort field (createdAt, updatedAt, title) |
+| `sortOrder` | string | desc | Sort order (asc, desc) |
+
+**Example Request**:
 ```
-Authorization: Bearer <token>
+GET /api/diaries?page=1&limit=10&mood=HAPPY&search=amazing&sortBy=createdAt&sortOrder=desc
 ```
 
-**Query Parameters:**
-- `page` (number, default: 1) - Page number
-- `limit` (number, default: 10, max: 100) - Items per page
-- `mood` (string) - Filter by mood (HAPPY, SAD, EXCITED, etc.)
-- `tagIds` (string) - Comma-separated tag IDs (e.g., "1,2,3")
-- `startDate` (ISO date) - Filter entries from this date
-- `endDate` (ISO date) - Filter entries until this date
-- `search` (string) - Search in title and content
-- `isPublic` (boolean) - Filter by public/private status
-- `sortBy` (string, default: "createdAt") - Sort field (createdAt, updatedAt, title)
-- `sortOrder` (string, default: "desc") - Sort order (asc, desc)
-
-**Example:**
-```
-GET /api/diaries?page=1&limit=10&mood=HAPPY&search=great&sortBy=createdAt&sortOrder=desc
-```
-
-**Response (200):**
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -321,7 +331,7 @@ GET /api/diaries?page=1&limit=10&mood=HAPPY&search=great&sortBy=createdAt&sortOr
     {
       "id": 1,
       "title": "My Amazing Day",
-      "content": "Today was a great day...",
+      "content": "Today was great...",
       "mood": "HAPPY",
       "isPublic": false,
       "userId": 1,
@@ -334,7 +344,7 @@ GET /api/diaries?page=1&limit=10&mood=HAPPY&search=great&sortBy=createdAt&sortOr
           "color": "#3B82F6"
         }
       ],
-      "attachmentsCount": 2
+      "attachmentsCount": 0
     }
   ],
   "meta": {
@@ -346,15 +356,56 @@ GET /api/diaries?page=1&limit=10&mood=HAPPY&search=great&sortBy=createdAt&sortOr
 }
 ```
 
-#### GET /api/diaries/:id
-Get a specific diary entry
+---
 
-**Headers:**
-```
-Authorization: Bearer <token>
+#### `GET /api/diaries/stats`
+
+**Description**: Get diary writing statistics  
+**Auth**: Required
+
+**Response** `200`:
+```json
+{
+  "success": true,
+  "message": "Stats retrieved successfully",
+  "data": {
+    "totalDiaries": 15,
+    "recentDiaries": 3,
+    "moodDistribution": [
+      {
+        "mood": "HAPPY",
+        "count": 5
+      },
+      {
+        "mood": "GRATEFUL",
+        "count": 3
+      }
+    ],
+    "topTags": [
+      {
+        "tag": {
+          "id": 1,
+          "name": "Personal",
+          "color": "#3B82F6"
+        },
+        "count": 8
+      }
+    ]
+  }
+}
 ```
 
-**Response (200):**
+---
+
+#### `GET /api/diaries/:id`
+
+**Description**: Get specific diary by ID  
+**Auth**: Required
+
+**URL Parameters**:
+- `id` (number): Diary ID
+
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -362,7 +413,7 @@ Authorization: Bearer <token>
   "data": {
     "id": 1,
     "title": "My Amazing Day",
-    "content": "Today was a great day. I learned a lot and had fun!",
+    "content": "Today was great...",
     "mood": "HAPPY",
     "isPublic": false,
     "userId": 1,
@@ -385,15 +436,20 @@ Authorization: Bearer <token>
 }
 ```
 
-#### PUT /api/diaries/:id
-Update a diary entry
+**Error Response**:
+- `404 Not Found`: Diary doesn't exist or doesn't belong to user
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+---
 
-**Request Body:**
+#### `PUT /api/diaries/:id`
+
+**Description**: Update diary entry  
+**Auth**: Required
+
+**URL Parameters**:
+- `id` (number): Diary ID
+
+**Request Body** (all fields optional):
 ```json
 {
   "title": "Updated Title",
@@ -404,7 +460,7 @@ Authorization: Bearer <token>
 }
 ```
 
-**Response (200):**
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -423,11 +479,6 @@ Authorization: Bearer <token>
         "id": 1,
         "name": "Personal",
         "color": "#3B82F6"
-      },
-      {
-        "id": 3,
-        "name": "Gratitude",
-        "color": "#F59E0B"
       }
     ],
     "user": {
@@ -439,15 +490,17 @@ Authorization: Bearer <token>
 }
 ```
 
-#### DELETE /api/diaries/:id
-Delete a diary entry
+---
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+#### `DELETE /api/diaries/:id`
 
-**Response (200):**
+**Description**: Delete diary entry  
+**Auth**: Required
+
+**URL Parameters**:
+- `id` (number): Diary ID
+
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -455,79 +508,29 @@ Authorization: Bearer <token>
 }
 ```
 
-#### GET /api/diaries/stats
-Get diary statistics
+**Error Response**:
+- `404 Not Found`: Diary doesn't exist or doesn't belong to user
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Stats retrieved successfully",
-  "data": {
-    "totalDiaries": 15,
-    "recentDiaries": 3,
-    "moodDistribution": [
-      {
-        "mood": "HAPPY",
-        "count": 5
-      },
-      {
-        "mood": "GRATEFUL",
-        "count": 3
-      },
-      {
-        "mood": "CALM",
-        "count": 2
-      }
-    ],
-    "topTags": [
-      {
-        "tag": {
-          "id": 1,
-          "name": "Personal",
-          "color": "#3B82F6"
-        },
-        "count": 8
-      },
-      {
-        "tag": {
-          "id": 2,
-          "name": "Learning",
-          "color": "#10B981"
-        },
-        "count": 5
-      }
-    ]
-  }
-}
-```
+---
 
 ### Tags
 
-All tag endpoints require authentication via Bearer token.
+All tag endpoints require authentication.
 
-#### POST /api/tags
-Create a new tag
+#### `POST /api/tags`
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+**Description**: Create new tag  
+**Auth**: Required
 
-**Request Body:**
+**Request Body**:
 ```json
 {
-  "name": "Work",
-  "color": "#EF4444"
+  "name": "Work",              // required, 1-50 chars, unique per user
+  "color": "#EF4444"           // optional, hex color code, default: #6B7280
 }
 ```
 
-**Response (201):**
+**Response** `201`:
 ```json
 {
   "success": true,
@@ -542,18 +545,20 @@ Authorization: Bearer <token>
 }
 ```
 
-#### GET /api/tags
-Get all tags
+**Error Response**:
+- `409 Conflict`: Tag name already exists for user
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+---
 
-**Query Parameters:**
-- `search` (string) - Search tags by name
+#### `GET /api/tags`
 
-**Response (200):**
+**Description**: Get all user tags  
+**Auth**: Required
+
+**Query Parameters**:
+- `search` (string, optional): Search tags by name
+
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -568,24 +573,26 @@ Authorization: Bearer <token>
     },
     {
       "id": 2,
-      "name": "Learning",
-      "color": "#10B981",
-      "createdAt": "2025-12-11T05:00:00.000Z",
+      "name": "Work",
+      "color": "#EF4444",
+      "createdAt": "2025-12-11T05:05:00.000Z",
       "usageCount": 5
     }
   ]
 }
 ```
 
-#### GET /api/tags/:id
-Get a specific tag
+---
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+#### `GET /api/tags/:id`
 
-**Response (200):**
+**Description**: Get tag with usage statistics  
+**Auth**: Required
+
+**URL Parameters**:
+- `id` (number): Tag ID
+
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -607,15 +614,20 @@ Authorization: Bearer <token>
 }
 ```
 
-#### PUT /api/tags/:id
-Update a tag
+**Error Response**:
+- `404 Not Found`: Tag doesn't exist or doesn't belong to user
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+---
 
-**Request Body:**
+#### `PUT /api/tags/:id`
+
+**Description**: Update tag  
+**Auth**: Required
+
+**URL Parameters**:
+- `id` (number): Tag ID
+
+**Request Body** (all fields optional):
 ```json
 {
   "name": "Work Projects",
@@ -623,7 +635,7 @@ Authorization: Bearer <token>
 }
 ```
 
-**Response (200):**
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -638,15 +650,20 @@ Authorization: Bearer <token>
 }
 ```
 
-#### DELETE /api/tags/:id
-Delete a tag
+**Error Response**:
+- `409 Conflict`: New tag name already exists for user
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+---
 
-**Response (200):**
+#### `DELETE /api/tags/:id`
+
+**Description**: Delete tag (removes from all diaries)  
+**Auth**: Required
+
+**URL Parameters**:
+- `id` (number): Tag ID
+
+**Response** `200`:
 ```json
 {
   "success": true,
@@ -654,89 +671,137 @@ Authorization: Bearer <token>
 }
 ```
 
-## Mood Types
+**Error Response**:
+- `404 Not Found`: Tag doesn't exist or doesn't belong to user
 
-Available mood options for diary entries:
-- `HAPPY`
-- `SAD`
-- `EXCITED`
-- `ANXIOUS`
-- `CALM`
-- `ANGRY`
-- `GRATEFUL`
-- `TIRED`
-- `MOTIVATED`
-- `CONFUSED`
+---
 
-## Error Responses
+## 📊 Data Models
 
-The API uses consistent error response format:
+### Mood Types
 
-```json
-{
-  "success": false,
-  "message": "Error message here",
-  "errors": {
-    "field": "Field-specific error message"
-  }
-}
-```
+| Mood | Description |
+|------|-------------|
+| `HAPPY` | Joyful and content |
+| `SAD` | Down or melancholic |
+| `EXCITED` | Full of enthusiasm |
+| `ANXIOUS` | Worried or nervous |
+| `CALM` | Peaceful and relaxed |
+| `ANGRY` | Frustrated or upset |
+| `GRATEFUL` | Appreciative and thankful |
+| `TIRED` | Exhausted or fatigued |
+| `MOTIVATED` | Driven and inspired |
+| `CONFUSED` | Uncertain or puzzled |
 
-### HTTP Status Codes
+---
 
-- `200` - Success
-- `201` - Created
-- `400` - Bad Request
-- `401` - Unauthorized
-- `403` - Forbidden
-- `404` - Not Found
-- `409` - Conflict
-- `422` - Unprocessable Entity (Validation Error)
-- `500` - Internal Server Error
-
-## Validation Rules
+## ✅ Validation Rules
 
 ### User Registration
-- `name`: 1-100 characters
-- `username`: 3-32 characters, alphanumeric and underscore only
-- `email`: Valid email format
-- `password`: 6-128 characters
+
+| Field | Type | Rules |
+|-------|------|-------|
+| `name` | string | Optional, 1-100 characters |
+| `username` | string | Required, 3-32 characters, alphanumeric + underscore, unique |
+| `email` | string | Required, valid email format, unique |
+| `password` | string | Required, 6-128 characters |
 
 ### Diary Entry
-- `title`: Required, 1-255 characters
-- `content`: Required, 1-50000 characters
-- `mood`: Optional, must be one of the valid mood types
-- `isPublic`: Optional, boolean (default: false)
-- `tagIds`: Optional, array of positive integers
+
+| Field | Type | Rules |
+|-------|------|-------|
+| `title` | string | Required, 1-255 characters |
+| `content` | string | Required, 1-50,000 characters |
+| `mood` | enum | Optional, must be valid mood type |
+| `isPublic` | boolean | Optional, default: false |
+| `tagIds` | array | Optional, array of positive integers |
 
 ### Tag
-- `name`: Required, 1-50 characters, alphanumeric, spaces, hyphens, underscores
-- `color`: Optional, valid hex color code (e.g., #FF5733)
 
-## Best Practices
+| Field | Type | Rules |
+|-------|------|-------|
+| `name` | string | Required, 1-50 characters, unique per user |
+| `color` | string | Optional, valid hex color code (e.g., #FF5733) |
 
-1. **Authentication**: Always include the Bearer token in the Authorization header
-2. **Pagination**: Use pagination for list endpoints to optimize performance
-3. **Filtering**: Combine multiple filters for precise data retrieval
-4. **Error Handling**: Check the `success` field in responses and handle errors appropriately
-5. **Validation**: The API validates all inputs - refer to error messages for fixing issues
+---
 
-## Security
+## 🔄 HTTP Status Codes
 
-- Passwords are hashed using Bun's password hashing
-- JWT tokens expire after 1 hour
-- All protected routes require valid authentication
-- Users can only access their own data
+| Code | Name | Description |
+|------|------|-------------|
+| `200` | OK | Successful GET, PUT, DELETE |
+| `201` | Created | Successful POST |
+| `400` | Bad Request | Invalid request format |
+| `401` | Unauthorized | Missing/invalid token |
+| `403` | Forbidden | Authenticated but not authorized |
+| `404` | Not Found | Resource doesn't exist |
+| `409` | Conflict | Duplicate resource |
+| `422` | Unprocessable Entity | Validation failed |
+| `500` | Internal Server Error | Server error |
 
-## Database Schema
+---
 
-The application uses the following main models:
-- **User**: User accounts and authentication
-- **Diary**: Diary entries with mood and privacy settings
-- **Tag**: Custom tags for organizing diaries
-- **DiaryTag**: Many-to-many relationship between diaries and tags
-- **Attachment**: File attachments for diaries (schema ready, implementation pending)
+## 🧪 Testing Examples
 
-## License
+### Complete Workflow
 
-MIT
+```bash
+# 1. Register
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Jane","username":"janedoe","email":"jane@example.com","password":"pass123"}'
+
+# 2. Login and get token
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"janedoe","password":"pass123"}'
+
+# Save token
+export TOKEN="eyJhbGci..."
+
+# 3. Create tag
+curl -X POST http://localhost:3000/api/tags \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"name":"Personal","color":"#3B82F6"}'
+
+# 4. Create diary
+curl -X POST http://localhost:3000/api/diaries \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"title":"My Day","content":"Amazing day!","mood":"HAPPY","tagIds":[1]}'
+
+# 5. Get all diaries
+curl -X GET "http://localhost:3000/api/diaries?page=1&limit=10" \
+  -H "Authorization: Bearer $TOKEN"
+
+# 6. Get statistics
+curl -X GET http://localhost:3000/api/diaries/stats \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+---
+
+## 📚 Additional Resources
+
+- **Main Documentation**: [README.md](./README.md)
+- **Frontend Repository**: [day-your-read](https://github.com/handikatriarlan/day-your-read)
+- **Testing Collection**: Check `/bruno` folder for complete Bruno API collection
+
+---
+
+## 🔗 Related Links
+
+- **GitHub**: [@handikatriarlan](https://github.com/handikatriarlan)
+- **Frontend**: [day-your-read](https://github.com/handikatriarlan/day-your-read)
+- **Backend**: [day-your-read-api](https://github.com/handikatriarlan/day-your-read-api)
+
+---
+
+<div align="center">
+
+**Last Updated**: December 11, 2025  
+**API Version**: 1.0  
+**Made with ❤️ by [Handika Tri Arlan](https://github.com/handikatriarlan)**
+
+</div>
